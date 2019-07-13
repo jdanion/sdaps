@@ -19,6 +19,7 @@
 from sdaps import model
 from sdaps import script
 from sdaps import defs
+from path import Path
 import os, subprocess, tempfile, shutil
 from pyzbar  import pyzbar
 import argparse
@@ -32,21 +33,20 @@ parser = script.add_project_subparser("watch",
     description=_("""Watch in a specified folder to detect a new scan,
     convert and push it to the right project."""))
 
-parser.add_argument('--scanFolder','-sf'
+parser.add_argument('--scanFolder','-sf',
     help=_("Folder to be watched"))
 
-parser.add_argument('--projectsFolder','-pf'
+parser.add_argument('--projectsFolder','-pf',
     help=_("Folder containing SDAPS projects"))
-
 
 @script.connect(parser)
 def watch(cmdline):
 
     #creating project dictionnary
     surveyIdList = {}
-
+    print ('Test')
     #list of all subfolders containing 'info'
-    for file in Path(cmdline['projectsFolder').walkfiles('info'):
+    for file in Path(cmdline['projectsFolder']).walkfiles('info'):
         s = file.dirname()
         with open(s+'/info', "r") as infoFile:
     #looking for survey id and add it to the dictionnary
@@ -69,29 +69,30 @@ def watch(cmdline):
         scan_title, scan_extension = os.path.splitext(scan)
         if scan_extension != '.tif' or scan_extension != '.tiff' and scan_extension == '.pdf':
             print('File', scan, 'found and converted')
-            subprocess.call(['pdfimages', '-tiff', cmdline['projectsFolder']+'/'+scan, tempd+'/'+scan_title])
+            subprocess.call(['pdfimages', '-tiff', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan_title])
         elif scan_extension == '.tif' or scan_extension == '.tiff':
-            subprocess.call(['cp', cmdline['projectsFolder']+'/'+scan, tempd+'/'+scan])
+            subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan])
         else:
             print('Wrong image format')
 
-    #récupération des scan convertis
     images = os.listdir(tempd)
 
     for image in images:
-        id = idDetect(tempd + '/' + image)
-        project = surveyIdList[id]
-        subprocess.call(['sdaps', 'add', project, tempd+'/'+image, '--convert'])
-        subprocess.call(['sdaps', 'recognize', project])
-        subprocess.call(['sdaps', 'csv', 'export', project])
+        id = barcodeDetect(tempd + '/' + image)[0:-4]
+        if id in surveyIdList:
+            project = surveyIdList[id]
+            print ( image+' found with '+id+' ID, adding do the '+project)
+            subprocess.call(['sdaps', 'add', project, tempd+'/'+image, '--convert'])
+            subprocess.call(['sdaps', 'recognize', project])
+            subprocess.call(['sdaps', 'csv', 'export', project])
 
-    #nettoyage
+    #cleaning
     for scan in scans:
-        os.remove(cmdline['projectsFolder']+'/'+scan)
+        os.remove(cmdline['scanFolder']+'/'+scan)
     shutil.rmtree(tempd)
 
 
-def idDetect(image):
+def barcodeDetect(image):
 
     # load the input image
     imageLoad = cv2.imread(image)
@@ -102,6 +103,4 @@ def idDetect(image):
     # loop over the detected barcodes
     for barcode in barcodes:
         barcodeData = barcode.data.decode("utf-8")
-        #test if the result is in the surveyid list
-        if barcodeData[0:-3] in surveyIdList:
-            return barcodeData[0:-3]
+        return barcodeData
