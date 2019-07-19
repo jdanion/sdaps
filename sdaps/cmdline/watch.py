@@ -44,7 +44,7 @@ def watch(cmdline):
 
     #creating project dictionnary
     surveyIdList = {}
-    print ('Test')
+
     #list of all subfolders containing 'info'
     for file in Path(cmdline['projectsFolder']).walkfiles('info'):
         s = file.dirname()
@@ -57,7 +57,10 @@ def watch(cmdline):
                 if words[0] == 'survey_id':
                     print('DETECT ! : '+words[1])
                     surveyIdList[words[1]] = s
-
+    with open('surveyList.csv', 'w') as f:
+        for key in surveyIdList.keys():
+            f.write("%s,%s\n"%(key,surveyIdList[key]))
+            
     #file retrieval
     scans = os.listdir(cmdline['scanFolder'])
 
