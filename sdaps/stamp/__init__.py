@@ -86,9 +86,9 @@ def stamp(survey, output_filename, cmdline):
         from sdaps.stamp.latex import create_stamp_pdf
     else:
         raise AssertionError('Only LaTeX stamping is currently supported!')
-
+    
     create_stamp_pdf(survey, output_filename, questionnaire_ids)
-    with open('surveyID.csv', 'a') as f:
+    with open(survey.title+'/surveyID.csv', 'a') as f:
         for id in questionnaire_ids:
             f.write("%s\n"%(id))
     survey.save()
