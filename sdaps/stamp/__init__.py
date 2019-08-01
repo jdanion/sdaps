@@ -33,6 +33,7 @@ _ = ugettext
 def stamp(survey, output_filename, cmdline):
     # copy questionnaire_ids
     # get number of sheets to create
+
     if cmdline['file'] or cmdline['random'] or cmdline['existing']:
         if not survey.defs.print_questionnaire_id:
             log.error(_("You may not specify the number of sheets for this survey. All questionnaires will be identical as the survey has been configured to not use questionnaire IDs for each sheet."))
@@ -87,8 +88,12 @@ def stamp(survey, output_filename, cmdline):
     else:
         raise AssertionError('Only LaTeX stamping is currently supported!')
 
-    create_stamp_pdf(survey, output_filename, questionnaire_ids)
+    print('test')
     with open('surveyID.csv', 'w') as f:
         for id in questionnaire_ids:
+            print(id)
             f.write("%s\n"%(id))
+
+    create_stamp_pdf(survey, output_filename, questionnaire_ids)
+
     survey.save()
