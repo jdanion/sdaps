@@ -88,12 +88,10 @@ def stamp(survey, output_filename, cmdline):
     else:
         raise AssertionError('Only LaTeX stamping is currently supported!')
 
-    print('test')
-    with open('surveyID.csv', 'w') as f:
+    create_stamp_pdf(survey, output_filename, questionnaire_ids)
+    with open(survey.title+'/surveyID.csv', 'a') as f:
         for id in questionnaire_ids:
             print(id)
             f.write("%s\n"%(id))
-
-    create_stamp_pdf(survey, output_filename, questionnaire_ids)
 
     survey.save()
