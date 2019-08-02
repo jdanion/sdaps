@@ -915,7 +915,7 @@ class Codebox(Textbox, metaclass=model.buddy.Register):
 
         res = read_barcode(surface, matrix,
                            x, y, width, height,
-                           "QRCODE")
+                           "*")
 
         # This is maybe a bit odd, but we accept empty string as a valid
         # content (if there was a barcode which was just the empty string).

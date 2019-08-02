@@ -83,7 +83,7 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     f.close()
 
     # Is the /dev/stdin sufficiently portable?
-    proc = subprocess.Popen(['zbarimg', '-q', '-Sdisable', #'-S%s.enable' % btype.lower(),
+    proc = subprocess.Popen(['zbarimg', '-q', '-Sdisable', '-S%s.enable' % btype.lower(),
     tmp], stdout=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     os.unlink(tmp)
@@ -106,7 +106,7 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
 
     assert(proc.returncode == 0)
     barcode = stdout.split(b'\n')[0]
-    assert barcode.split(b':', 1)[0].replace(b'-', b'').lower() == btype.lower().encode('ascii')
+    #assert barcode.split(b':', 1)[0].replace(b'-', b'').lower() == btype.lower().encode('ascii')
 
     return barcode.split(b':', 1)[1].decode('utf-8')
 
