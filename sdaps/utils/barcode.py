@@ -83,7 +83,8 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     f.close()
 
     # Is the /dev/stdin sufficiently portable?
-    proc = subprocess.Popen(['zbarimg', '-q', '-Sdisable', '-S%s.enable' % btype.lower(), tmp], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(['zbarimg', '-q', '-Sdisable', #'-S%s.enable' % btype.lower(),
+    tmp], stdout=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     os.unlink(tmp)
 
