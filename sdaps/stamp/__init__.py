@@ -22,6 +22,8 @@ import os
 import sys
 import math
 import codecs
+import datetime
+import csv
 
 from sdaps import model
 from sdaps import log
@@ -89,9 +91,9 @@ def stamp(survey, output_filename, cmdline):
         raise AssertionError('Only LaTeX stamping is currently supported!')
 
     create_stamp_pdf(survey, output_filename, questionnaire_ids)
-    with open(survey.survey_dir+'/surveyID.csv', 'a') as f:
+    with open(survey.survey_dir+'/surveyID.csv','a',newline='') as f:
+        writer=csv.writer(f)
         for id in questionnaire_ids:
             print(id)
-            f.write("%s\n"%(id))
-
-    survey.save()
+            writer.writerow([id,datetime.datetime.now()])
+        survey.save()
