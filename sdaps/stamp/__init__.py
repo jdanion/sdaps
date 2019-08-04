@@ -82,7 +82,19 @@ def stamp(survey, output_filename, cmdline):
         questionnaire_ids = None
 
     if questionnaire_ids is not None and not cmdline['existing']:
+        print(questionnaire_ids)
+        print(survey.questionnaire_ids)
+        print(type(survey.questionnaire_ids))
+        stamped_datetimes = list()
+        for i in questionnaire_ids:
+            print (i)
+            now = str(datetime.datetime.now())
+            stamped_datetimes.append(now)
+            print (now)
+        survey.questionnaire_stampeddates.extend(stamped_datetimes)
         survey.questionnaire_ids.extend(questionnaire_ids)
+        print(survey.questionnaire_ids)
+        print(survey.questionnaire_stampeddates)
 
     if os.path.exists(survey.path('questionnaire.tex')):
         # use the LaTeX stamper
@@ -91,9 +103,4 @@ def stamp(survey, output_filename, cmdline):
         raise AssertionError('Only LaTeX stamping is currently supported!')
 
     create_stamp_pdf(survey, output_filename, questionnaire_ids)
-    with open(survey.survey_dir+'/surveyID.csv','a',newline='') as f:
-        writer=csv.writer(f)
-        for id in questionnaire_ids:
-            print(id)
-            writer.writerow([id,datetime.datetime.now()])
-        survey.save()
+    survey.save()

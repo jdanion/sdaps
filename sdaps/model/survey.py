@@ -19,12 +19,13 @@
 import os
 import sys
 import struct
+import csv
 
 import json
 import sqlite3
 import weakref
 from contextlib import closing
- 
+
 from . import db
 from . import questionnaire
 from .sheet import Sheet
@@ -130,6 +131,9 @@ class Survey(object):
         self.survey_id = 0
         self.global_id = None
         self.questionnaire_ids = list()
+        self.questionnaire_stampeddates = list()
+        self.returned_ids = list()
+        self.duplicates_ids = list()
         self.index = 0
         self.defs = Defs()
         self._db = None
@@ -346,6 +350,14 @@ class Survey(object):
         # it is not stored there internally..
         config.set('questionnaire', 'survey_id', str(self.survey_id))
 
+        #writeout questionnaire id list
+        with open(self.survey_dir+'/stampedList.csv', 'a') as csvFile:
+            stampedList = ['questionnaire_ids','stamped datetimes']
+            stampedList = stampedList.append(list(zip(self.questionnaire_ids, self.questionnaire_stampeddates)))
+            writer = csv.writer(csvFile)
+            for i in stampedList:
+                writer.writerow(i)
+        csvFile.close()
         # Atomically write info file
         info_fd = open(os.path.join(self.survey_dir, '.info.tmp'), 'w')
         config.write(info_fd)
@@ -502,5 +514,3 @@ class Survey(object):
           return qid
         else:
             AssertionError()
-
-
