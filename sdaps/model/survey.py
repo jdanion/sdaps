@@ -350,14 +350,19 @@ class Survey(object):
         # it is not stored there internally..
         config.set('questionnaire', 'survey_id', str(self.survey_id))
 
-        #writeout questionnaire id list
-        with open(self.survey_dir+'/stampedList.csv', 'a') as csvFile:
-            stampedList = ['questionnaire_ids','stamped datetimes']
-            stampedList = stampedList.append(list(zip(self.questionnaire_ids, self.questionnaire_stampeddates)))
-            writer = csv.writer(csvFile)
-            for i in stampedList:
-                writer.writerow(i)
-        csvFile.close()
+        #writeout questionnaire id list if questionnaire ids not null
+
+        # with open(self.survey_dir+'/stampedList.csv', 'a') as csvFile:
+        #     stampedList = ['questionnaire_ids','stamped datetimes']
+        #     if self.questionnaire_ids is not None:
+        #         stampedList = stampedList.append(list(zip(self.questionnaire_ids, self.questionnaire_stampeddates)))
+        #     else:
+        #         pass
+        #     writer = csv.writer(csvFile)
+        #     for i in stampedList:
+        #         print(i)
+        #         writer.writerow(i)
+        # csvFile.close()
         # Atomically write info file
         info_fd = open(os.path.join(self.survey_dir, '.info.tmp'), 'w')
         config.write(info_fd)
