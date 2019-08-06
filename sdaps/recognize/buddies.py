@@ -47,7 +47,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
         self.obj.valid = 1
 
         duplex_mode = self.obj.survey.defs.duplex
-
+        print(duplex_mode)
         # Load all images of this sheet
         for image in self.obj.images:
             if not image.ignored:
@@ -74,15 +74,18 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
 
         # Rotation for all of them
         for page, image in enumerate(self.obj.images):
+            print(page, image)
             try:
                 # This may set the rotation to "None" for unknown
                 image.recognize.calculate_rotation()
+                print(image.rotated)
             except RecognitionError:
                 log.warn(_('%s, %i: Rotation not found.') % (image.filename, image.tiff_page))
                 failed_pages.add(page)
 
         # Copy the rotation over (if required) and print warning if the rotation is unknown
-        self.duplex_copy_image_attr(failed_pages, 'rotated', _("Neither %s, %i or %s, %i has a known rotation!"))
+
+        #self.duplex_copy_image_attr(failed_pages, 'rotated', _("Neither %s, %i or %s, %i has a known rotation!"))
 
         # Reload any image that is rotated.
         for page, image in enumerate(self.obj.images):
@@ -194,16 +197,19 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
         # *************************************
         if self.obj.survey.defs.print_survey_id:
             for page, image in enumerate(self.obj.images):
+                print('TEST')
                 try:
                     if not duplex_mode or (image.page_number is not None and image.page_number % 2 == 0):
+                        print('OK')
                         image.recognize.calculate_survey_id()
                     else:
+                        print('ECHEC')
                         image.survey_id = None
                 except RecognitionError:
                     log.warn(_('%s, %i: Could not read survey ID, but should be able to.') %
                              (image.filename, image.tiff_page))
                     failed_pages.add(page)
-
+                print(self.obj.images[page].survey_id)
             self.duplex_copy_image_attr(failed_pages, "survey_id", _("Could not read survey ID of either %s, %i or %s, %i!"))
 
             # Simply use the survey ID from the first image globally

@@ -201,4 +201,3 @@ class Image(buddy.Object):
         # survey may be None if the sheet does not belong to a survey yet.
         if hasattr(self, "sheet") and self.sheet is not None and self.sheet.survey is not None:
             self.sheet.survey.questionnaire.notify_data_changed(None, None, attr, old_value)
-
