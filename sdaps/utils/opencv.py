@@ -212,7 +212,7 @@ def convert_to_monochrome(img, size=201, thresh_adjust=5):
     img = cv2.adaptiveThreshold(img, 255.0, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, size, thresh_adjust)
 
     return img
-   
+
 def save(img, filename):
     cv2.imwrite(img, filename)
 
@@ -272,4 +272,3 @@ def transform_using_corners(img, paper_width, paper_height):
     transformed = cv2.warpPerspective(img, transform_matrix, dsize=(width, height))
 
     return transformed
-

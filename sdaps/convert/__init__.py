@@ -24,9 +24,14 @@ _ = ugettext
 
 def convert_images(images, outfile, paper_width, paper_height, transform=False):
 
+
+
     portrait = paper_height >= paper_width
 
+
+
     for i, (img, filename, page) in enumerate(opencv.iter_images_and_pages(images)):
+
         img = opencv.ensure_orientation(img, portrait)
         img = opencv.sharpen(img)
 
@@ -38,5 +43,3 @@ def convert_images(images, outfile, paper_width, paper_height, transform=False):
 
         mono = opencv.convert_to_monochrome(img)
         image.write_a1_to_tiff(outfile, opencv.to_a1_surf(mono))
-
-

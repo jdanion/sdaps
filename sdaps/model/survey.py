@@ -132,6 +132,7 @@ class Survey(object):
         self.global_id = None
         self.questionnaire_ids = list()
         self.questionnaire_stampeddates = list()
+        self.questionnaire_scandates = list()
         self.returned_ids = list()
         self.duplicates_ids = list()
         self.index = 0

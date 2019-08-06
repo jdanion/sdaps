@@ -129,6 +129,26 @@ class Image(model.buddy.Buddy, metaclass=model.buddy.Register):
         # XXX: Is that assumption sane?
         return code
 
+    def get_barcode_id(self):
+        # Returns the questionnaire ID or "None" if it cannot be retrieved
+
+        # In this function assume that the rotation is correct already.
+        paper_width = self.obj.sheet.survey.defs.paper_width
+        paper_height = self.obj.sheet.survey.defs.paper_height
+        print('GET BARCODE ID PROCESS')
+        # Search for the barcode on the top right of the page
+        code = \
+            read_barcode(self.obj.surface.surface, self.obj.recognize.matrix,
+                        12,
+                        22,
+                        187,
+                        70, "*")
+
+        # Simply return the code, it may be alphanumeric, we don't care here
+        # XXX: Is that assumption sane?
+        print ('GET BARCODE ID DONE : '+str(code))
+        return code
+
     def get_global_id(self):
         # Returns the global ID or "None" if it cannot be retrieved
 
@@ -142,7 +162,7 @@ class Image(model.buddy.Buddy, metaclass=model.buddy.Register):
                          paper_width / 4,
                          paper_height - defs.corner_mark_bottom - defs.code128_vpad - defs.code128_height - 5,
                          paper_width / 2,
-                         defs.corner_mark_bottom + defs.code128_vpad + defs.code128_height + 5)
+                         defs.corner_mark_bottom + defs.code128_vpad + defs.code128_height + 5, "*")
 
         # Simply return the code, it may be alphanumeric, we don't care here
         return code

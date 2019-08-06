@@ -85,7 +85,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
 
         # Copy the rotation over (if required) and print warning if the rotation is unknown
 
-        #self.duplex_copy_image_attr(failed_pages, 'rotated', _("Neither %s, %i or %s, %i has a known rotation!"))
+        self.duplex_copy_image_attr(failed_pages, 'rotated', _("Neither %s, %i or %s, %i has a known rotation!"))
 
         # Reload any image that is rotated.
         for page, image in enumerate(self.obj.images):
@@ -193,7 +193,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
 
             pages.add(image.page_number)
 
-        # Figure out the suvey ID if neccessary
+        # Figure out the survey ID if neccessary
         # *************************************
         if self.obj.survey.defs.print_survey_id:
             for page, image in enumerate(self.obj.images):
@@ -251,6 +251,33 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
                 self.obj.questionnaire_id = questionnaire_ids[0]
             else:
                 self.obj.questionnaire_id = self.obj.images[0].questionnaire_id
+
+        # Figure out the barcode ID if neccessary
+        # *********************************************
+        if self.obj.survey.defs.print_questionnaire_id:
+            barcode_ids = []
+
+            for page, image in enumerate(self.obj.images):
+                try:
+                    if not duplex_mode or (image.page_number is not None and image.page_number % 2 == 0):
+                        image.recognize.calculate_barcode_id()
+                except RecognitionError:
+                    log.warn(_('%s, %i: Could not read Barcode ID, but should be able to.') % \
+                             (image.filename, image.tiff_page))
+                if image.barcode_id is not None:
+                    barcode_ids.append(image.barcode_id)
+            print('BARCODE LIST :'+str(barcode_ids))
+            if len(barcode_ids):
+                self.obj.barcode_id = barcode_ids[0]
+            else:
+                self.obj.barcode_id = self.obj.images[0].barcode_id
+
+            # self.duplex_copy_image_attr(failed_pages, "_id", _("Could not read questionnaire ID of either %s, %i or %s, %i!"))
+            #
+            # if len(questionnaire_ids):
+            #     self.obj.questionnaire_id = questionnaire_ids[0]
+            # else:
+            #     self.obj.questionnaire_id = self.obj.images[0].questionnaire_id
 
         # Try to load the global ID. If it does not exist we will get None, if
         # it does, then it will be non-None. We don't care much about it
@@ -360,10 +387,19 @@ class Image(model.buddy.Buddy, metaclass=model.buddy.Register):
             self.obj.questionnaire_id = self.obj.style.get_questionnaire_id()
 
     def calculate_global_id(self):
+        print('CALCULATE GLOBAL ID')
         if self.obj.ignored:
             self.obj.global_id = None
         else:
             self.obj.global_id = self.obj.style.get_global_id()
+
+    def calculate_barcode_id(self):
+        print('CALCULATE BARCODE ID')
+        if self.obj.ignored:
+            self.obj.barcode_id = None
+        else:
+            print('BARCODE ID NOT IGNORED')
+            self.obj.barcode_id = self.obj.style.get_barcode_id()
 
     def clean(self):
         self.obj.surface.clean()

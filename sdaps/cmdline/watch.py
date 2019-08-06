@@ -18,12 +18,13 @@
 
 #from sdaps import model
 import os, subprocess, tempfile, shutil
-
+from sdaps import convert
 from sdaps import script
 #from sdaps import defs
 from sdaps import recognize
 from sdaps import model
 from sdaps import image
+from sdaps.utils import opencv
 #from sdaps.recognize import buddies
 from path import Path
 
@@ -126,30 +127,58 @@ def watch(cmdline):
     #folder with alreay processed scans
     renamedFolder = cmdline['renamedFolder']
 
+    def is_tiff(scanned):
+        scan_title, scan_extension = os.path.splitext(scanned)
+        if scan_extension == '.tif' or scan_extension == '.tiff':
+            return True
+        else:
+            return False
+
+    def is_pdf(scanned):
+        scan_title, scan_extension = os.path.splitext(scanned)
+        if scan_extension == '.pdf':
+            return True
+        else:
+            return False
+
+
    #convert and copy
     for scan in scans:
         scan_title, scan_extension = os.path.splitext(scan)
         print(scan_title, scan_extension)
-        if (scan_extension != '.tif' or scan_extension != '.tiff') and scan_extension == '.pdf':
+        if is_pdf(scan):
             print('PDF file found')
             print('Scan title '+scan_title, 'Scan extension '+scan_extension)
-            print('File', scan, 'found, trying to convert')
-            subprocess.call(['pdfimages', '-tiff', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan_title])
-        elif scan_extension == '.tif' or scan_extension == '.tiff':
+            tempscanpdf = tempfile.mktemp(suffix='.pdf',dir=tempd)
+            tempscantif = tempfile.mktemp(suffix='.tif',dir=tempd)
+            print('File', str(cmdline['scanFolder']+'/'+scan), 'found, trying to convert to '+tempscantif)
+            subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempscanpdf])
+            print('Copied'+str(cmdline['scanFolder']+'/'+scan)+'to '+tempscanpdf)
+            #subprocess.call(['sdaps', 'add', "WATCH", tempscanpdf, '--convert'])
+            # for i, (img, filename, page) in enumerate(opencv.iter_images_and_pages(tempscanpdf)):
+            #     print(img)
+            #     print(filename)
+            #     print(page)
+            scantoconvert = []
+            scantoconvert.append(tempscanpdf)
+            convert.convert_images(scantoconvert, tempscantif, survey.defs.paper_width, survey.defs.paper_height)
+            #subprocess.call(['pdfimages', '-tiff', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan_title])
+        elif is_tiff(scan):
             print('TIFF file found')
-            subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan])
+            tempscantif = tempfile.mktemp(suffix='.tif',dir=tempd)
+            subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempscantif])
         else:
              print('Wrong image format for file '+scan)
 
     #we retrieve all tiff to be processed
-    tiffscans = os.listdir(tempd)
+    tiffscans = filter(is_tiff, os.listdir(tempd))
 
     images = []
 
     print('Files to be processed :'+str(tiffscans))
 
     for file in tiffscans:
-        num_pages = image.get_tiff_page_count(tempd+"/"+file)
+        num_pages = image.get_tiff_page_count(tempd+'/'+file)
         print(num_pages)
         for page in range(num_pages):
             images.append((tempd+"/"+file, page))
@@ -198,10 +227,12 @@ def watch(cmdline):
                 print('\tMatrix (px to mm):', img.raw_matrix)
                 print('\tSurvey-ID:', sheet.survey_id)
                 print('\tGlobal-ID:', sheet.global_id)
+                print('\tBarcode-ID:', sheet.barcode_id)
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
-                subprocess.call(['cp', img.orig_name, str(renamedFolder)+'/'+str(datestamp)+str(sheet.questionnaire_id)+str(sheet.survey_id)+".tif"])
+                tiffname = str(datestamp)+str(sheet.questionnaire_id)+'_'+str(sheet.survey_id)+'_'+str(sheet.barcode_id)
+                subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
     # processedList = []
     #

@@ -123,6 +123,7 @@ def add(cmdline):
 
     if not error:
         for file in filelist:
+            
             print(_('Processing %s') % file)
 
             add_image(survey, file, cmdline['duplex'], cmdline['force'], cmdline['copy'])
@@ -140,5 +141,3 @@ def add(cmdline):
     else:
         survey.save()
         return 0
-
-
