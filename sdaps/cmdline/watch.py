@@ -84,8 +84,8 @@ def watch(cmdline):
     else :
         print('Creating WATCH project')
         subprocess.call(['sdaps', 'setup', 'WATCH', './watch.tex'])
-
-    #loading dommy survey
+    watchtexpath = (os.path.dirname(os.path.abspath(__file__)))
+    #loading dummy survey
     print('Loading WATCH project')
     survey = model.survey.Survey.load('WATCH')
 

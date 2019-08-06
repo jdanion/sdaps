@@ -1,0 +1,64 @@
+\documentclass[
+  % Babel language, also used to load translations
+  english,
+  globalid=200,
+  globalidlabel=WATCH,
+  style=code128,
+  checkmode=check,
+  print_questionnaire_id,
+  oneside,
+  stamp,
+  pagemark
+ ]{sdapsclassic}
+\usepackage[utf8]{inputenc}
+\usepackage{multicol}
+\usepackage{graphicx}
+\graphicspath{ {../} }
+%\setlength\normallineskip{0pt}
+%\setlength\lineskip{0pt}
+%\setlength{\multicolsep}{6.0pt plus 2.0pt minus 1.5pt}
+\setlength\parskip{0.0ex}
+
+\author{GAST}
+\title{WATCH}
+
+
+\begin{document}
+\begin{questionnaire}[noinfo]
+
+\ExplSyntaxOn
+\let\etiquette\sdaps_classic_ensure_section:
+\ExplSyntaxOff
+\etiquette
+
+\ExplSyntaxOn
+\let\myquestionbegin\sdaps_qobject_begin:nnn
+\let\mytexthbox\sdaps_textbox_hbox:nnn
+\let\myquestionend\sdaps_qobject_end:n
+\let\mysettextboxtype\sdaps_textbox_set_type:n
+\sdaps_context_set:n {
+  codebox = {
+    text = 	 { 
+    					   
+    },
+  }
+}
+\ExplSyntaxOff
+
+
+
+\myquestionbegin{barcode}{text}{barcoderecto}
+\mysettextboxtype{codebox}
+\mytexthbox{}{1bp}{ \hspace{18.5cm} \vrule width 1pt height 7cm depth 0cm }
+\myquestionend{barcode}
+
+\pagebreak
+
+\myquestionbegin{barcode}{text}{barcodeverso}
+\mysettextboxtype{codebox}
+\mytexthbox{}{1bp}{ \hspace{18.5cm} \vrule width 1pt height 7cm depth 0cm }
+\myquestionend{barcode}
+
+\end{questionnaire}
+\end{document}
+
