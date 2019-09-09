@@ -47,7 +47,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
         self.obj.valid = 1
 
         duplex_mode = self.obj.survey.defs.duplex
-        print('DUPLEX MODE ? = 'duplex_mode)
+        print('DUPLEX MODE ? = '+str(duplex_mode))
         # Load all images of this sheet
         for image in self.obj.images:
             if not image.ignored:
