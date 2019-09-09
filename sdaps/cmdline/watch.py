@@ -217,6 +217,8 @@ def watch(cmdline):
 
         #print(images)
 
+        print ('RECOGNIZED ')
+
         sheet.recognize.recognize()
     #
         for img in sheet.images:
