@@ -47,7 +47,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
         self.obj.valid = 1
 
         duplex_mode = self.obj.survey.defs.duplex
-        print(duplex_mode)
+        print('DUPLEX MODE ? = 'duplex_mode)
         # Load all images of this sheet
         for image in self.obj.images:
             if not image.ignored:
@@ -200,7 +200,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
                 print('TEST')
                 try:
                     if not duplex_mode or (image.page_number is not None and image.page_number % 2 == 0):
-                        print('OK')
+                        print('OK Calculate survey ID')
                         image.recognize.calculate_survey_id()
                     else:
                         print('ECHEC')
