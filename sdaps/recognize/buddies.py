@@ -202,6 +202,7 @@ class Sheet(model.buddy.Buddy, metaclass=model.buddy.Register):
                     if not duplex_mode or (image.page_number is not None and image.page_number % 2 == 0):
                         print('OK Calculate survey ID')
                         image.recognize.calculate_survey_id()
+                        print(self.obj.images[page].survey_id)
                     else:
                         print('ECHEC')
                         image.survey_id = None
