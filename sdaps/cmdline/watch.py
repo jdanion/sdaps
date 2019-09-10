@@ -217,7 +217,7 @@ def watch(cmdline):
 
         #print(images)
 
-        print ('RECOGNIZED ')
+        print ('RECOGNIZE ')
 
         sheet.recognize.recognize()
     #
@@ -233,7 +233,7 @@ def watch(cmdline):
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
-                tiffname = str(datestamp)+str(sheet.questionnaire_id)+'_'+str(sheet.survey_id)+'_'+str(sheet.barcode_id)
+                tiffname = 'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
                 subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
     # processedList = []
