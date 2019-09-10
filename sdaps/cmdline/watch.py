@@ -175,7 +175,7 @@ def watch(cmdline):
 
     images = []
 
-    print('File list to be processed : '+tiffscans)
+    print('File list to be processed : '+str(tiffscans))
 
     for file in tiffscans:
         num_pages = image.get_tiff_page_count(tempd+'/'+file)
