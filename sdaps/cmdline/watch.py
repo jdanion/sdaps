@@ -222,19 +222,26 @@ def watch(cmdline):
         sheet.recognize.recognize()
     #
         for img in sheet.images:
+            dictID = {}
             if img.tiff_page != -1:
                 print(img.orig_name, img.tiff_page)
                 print('\tPage:', img.page_number)
                 print('\tRotated:', img.rotated)
                 print('\tMatrix (px to mm):', img.raw_matrix)
                 print('\tSurvey-ID:', sheet.survey_id)
+                tmpdictID = {'QID':sheet.questionnaire_id, 'SID':sheet.survey_id, 'BID':sheet.barcode_id, 'GID':sheet.global_id}
+                tempSID = sheet.survey_id
                 print('\tGlobal-ID:', sheet.global_id)
+                tempGID = sheet.global_id
                 print('\tBarcode-ID:', sheet.barcode_id)
+                tempBID = sheet.barcode_id
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
+                tempQID = sheet.questionnaire_id
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
                 tiffname = str(renamedFolder)+'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
-                subprocess.call(['cp', img.orig_name, tiffname+".tif"])
+            
+            subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
     # processedList = []
     #
