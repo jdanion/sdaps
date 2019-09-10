@@ -36,7 +36,7 @@ def read_barcode(surface, matrix, x, y, width, height, btype="CODE128"):
 
     if result == None:
       # Try kfill approach
-      result = scan(surface, matrix, x, y, width, height, btype, True)
+      result = scan(surface, matrix, x, y, width, height, "CODE39", True)
 
     return result
 
