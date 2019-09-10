@@ -79,10 +79,10 @@ def watch(cmdline):
     # We need a survey that has the correct definitions (paper size, duplex mode)
     # Assume the first argument is a survey
     if os.path.exists('./WATCH/info'):
-        print('WATCH project found')
+        print('WATCH project found, processing')
         pass
     else :
-        print('Creating WATCH project')
+        print('Creating new WATCH project')
         subprocess.call(['sdaps', 'setup', 'WATCH', './watch.tex'])
     watchtexpath = (os.path.dirname(os.path.abspath(__file__)))
     #loading dummy survey
@@ -168,14 +168,14 @@ def watch(cmdline):
             tempscantif = tempfile.mktemp(suffix='.tif',dir=tempd)
             subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempscantif])
         else:
-             print('Wrong image format for file '+scan)
+             print('Wrong image format for file '+scan+', ignoring')
 
     #we retrieve all tiff to be processed
     tiffscans = filter(is_tiff, os.listdir(tempd))
 
     images = []
 
-    print('Files to be processed :'+str(tiffscans))
+    print('File list to be processed : '+tiffscans)
 
     for file in tiffscans:
         num_pages = image.get_tiff_page_count(tempd+'/'+file)
@@ -233,7 +233,7 @@ def watch(cmdline):
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
-                tiffname = 'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
+                tiffname = str(renamedFolder)+'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
                 subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
     # processedList = []
