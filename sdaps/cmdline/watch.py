@@ -16,25 +16,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#from sdaps import model
-import os, subprocess, tempfile, shutil
+# from sdaps import model
+import os, subprocess, tempfile, shutil, sys
 from sdaps import convert
 from sdaps import script
-#from sdaps import defs
+# from sdaps import defs
 from sdaps import recognize
 from sdaps import model
 from sdaps import image
 from sdaps.utils import opencv
-#from sdaps.recognize import buddies
+# from sdaps.recognize import buddies
 from path import Path
 
-#from pyzbar  import pyzbar
+# from pyzbar  import pyzbar
 import argparse
-#import cv2
+# import cv2
 import datetime
 import csv
 
 from sdaps.utils.ugettext import ugettext, ungettext
+
 _ = ugettext
 
 # def barcodeDetect(image):
@@ -60,32 +61,32 @@ _ = ugettext
 #     return (project , facturation)
 
 parser = script.add_project_subparser("watch",
-    help=_("Watching for new scan commit"),
-    description=_("""Watch in a specified folder to detect a new scan,
+                                      help=_("Watching for new scan commit"),
+                                      description=_("""Watch in a specified folder to detect a new scan,
     convert and push it to the right project."""))
 
 parser.add_argument('--scanFolder', '-sf',
-    help=_("Folder to be watched"))
+                    help=_("Folder to be watched"))
 
 parser.add_argument('--projectsFolder', '-pf',
-    help=_("Folder containing SDAPS projects"))
+                    help=_("Folder containing SDAPS projects"))
 
-parser.add_argument('--renamedFolder','-rf',
-    help=_("Folder with renamed and processed scans"))
+parser.add_argument('--renamedFolder', '-rf',
+                    help=_("Folder with renamed and processed scans"))
+
 
 @script.connect(parser)
 def watch(cmdline):
-
     # We need a survey that has the correct definitions (paper size, duplex mode)
     # Assume the first argument is a survey
     if os.path.exists('./WATCH/info'):
         print('WATCH project found, processing')
         pass
-    else :
+    else:
         print('Creating new WATCH project')
         subprocess.call(['sdaps', 'setup', 'WATCH', './watch.tex'])
     watchtexpath = (os.path.dirname(os.path.abspath(__file__)))
-    #loading dummy survey
+    # loading dummy survey
     print('Loading WATCH project')
     survey = model.survey.Survey.load('WATCH')
 
@@ -95,36 +96,36 @@ def watch(cmdline):
 
     print('Listing all projects in ProjectsFolder')
 
-    #creating project dictionnary
+    # creating project dictionnary
     surveyIdList = {}
 
-    #list of all subfolders containing 'info'
+    # list of all subfolders containing 'info'
     for file in Path(cmdline['projectsFolder']).walkfiles('info'):
         s = file.dirname()
-        with open(s+'/info', "r") as infoFile:
-    #looking for survey id and add it to the dictionnary
+        with open(s + '/info', "r") as infoFile:
+            # looking for survey id and add it to the dictionnary
             lines = infoFile.read()
             line = lines.split('\n')
-            for l in line :
+            for l in line:
                 words = l.split(' = ')
                 if words[0] == 'survey_id':
-                    print('DETECT ! : '+words[1])
+                    print('DETECT ! : ' + words[1])
                     surveyIdList[words[1]] = s
     with open('surveyList.csv', 'w') as f:
         for key in surveyIdList.keys():
-            f.write("%s,%s\n"%(key,surveyIdList[key]))
+            f.write("%s,%s\n" % (key, surveyIdList[key]))
 
-    #file retrieval
+    # file retrieval
     print('Listing scanned files')
     scans = os.listdir(cmdline['scanFolder'])
 
     print(scans)
 
-    #temp folder creation
+    # temp folder creation
     tempd = tempfile.mkdtemp()
-    print('Temp folder :'+tempd)
+    print('Temp folder :' + tempd)
 
-    #folder with alreay processed scans
+    # folder with alreay processed scans
     renamedFolder = cmdline['renamedFolder']
 
     def is_tiff(scanned):
@@ -141,51 +142,52 @@ def watch(cmdline):
         else:
             return False
 
-
-   #convert and copy
+    # convert and copy
     for scan in scans:
         scan_title, scan_extension = os.path.splitext(scan)
         print(scan_title, scan_extension)
         if is_pdf(scan):
             print('PDF file found')
-            print('Scan title '+scan_title, 'Scan extension '+scan_extension)
-            tempscanpdf = tempfile.mktemp(suffix='.pdf',dir=tempd)
-            tempscantif = tempfile.mktemp(suffix='.tif',dir=tempd)
-            print('File', str(cmdline['scanFolder']+'/'+scan), 'found, trying to convert to '+tempscantif)
-            subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempscanpdf])
-            print('Copied'+str(cmdline['scanFolder']+'/'+scan)+'to '+tempscanpdf)
-            #subprocess.call(['sdaps', 'add', "WATCH", tempscanpdf, '--convert'])
+            print('Scan title ' + scan_title, 'Scan extension ' + scan_extension)
+            tempscanpdf = tempfile.mktemp(suffix='.pdf', dir=tempd)
+            tempscantif = tempfile.mktemp(suffix='.tif', dir=tempd)
+            print('File', str(cmdline['scanFolder'] + '/' + scan), 'found, trying to convert to ' + tempscantif)
+            subprocess.call(['cp', cmdline['scanFolder'] + '/' + scan, tempscanpdf])
+            print('Copied' + str(cmdline['scanFolder'] + '/' + scan) + ' to ' + tempscanpdf)
+            # subprocess.call(['sdaps', 'add', "WATCH", tempscanpdf, '--convert'])
             # for i, (img, filename, page) in enumerate(opencv.iter_images_and_pages(tempscanpdf)):
             #     print(img)
             #     print(filename)
             #     print(page)
-            scantoconvert = []
-            scantoconvert.append(tempscanpdf)
-            convert.convert_images(scantoconvert, tempscantif, survey.defs.paper_width, survey.defs.paper_height)
-            #subprocess.call(['pdfimages', '-tiff', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan_title])
+            #scantoconvert = []
+            #scantoconvert.append(tempscanpdf)
+            convert.convert_images([tempscanpdf], tempscantif, survey.defs.paper_width, survey.defs.paper_height)
+            # subprocess.call(['pdfimages', '-tiff', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan_title])
         elif is_tiff(scan):
             print('TIFF file found')
-            tempscantif = tempfile.mktemp(suffix='.tif',dir=tempd)
-            subprocess.call(['cp', cmdline['scanFolder']+'/'+scan, tempscantif])
+            tempscantif = tempfile.mktemp(suffix='.tif', dir=tempd)
+            subprocess.call(['cp', cmdline['scanFolder'] + '/' + scan, tempscantif])
         else:
-             print('Wrong image format for file '+scan+', ignoring')
+            print('Wrong image format for file ' + scan + ', ignoring')
 
-    #we retrieve all tiff to be processed
+    # we retrieve all tiff to be processed
     tiffscans = filter(is_tiff, os.listdir(tempd))
 
     images = []
 
-    print('File list to be processed : '+str(tiffscans))
-
     for file in tiffscans:
-        num_pages = image.get_tiff_page_count(tempd+'/'+file)
-        print(num_pages)
+        num_pages = image.get_tiff_page_count(tempd + '/' + file)
+        # Create one tif file for every pages and add it into images dict
+        subprocess.call(['convert', tempd + '/' + file, tempd + '/%d' + file])
         for page in range(num_pages):
-            images.append((tempd+"/"+file, page))
-
+            print(tempd + '/' + str(page) + file)
+            # Reconvert each tif to the survey format
+            convert.convert_images([tempd + '/' + str(page) + file], tempd + '/' + str(page) + file, survey.defs.paper_width, survey.defs.paper_height)
+            images.append((tempd + '/' + str(page) + file, 1))
 
     if len(images) == 0:
         # No images, simply exit again.
+        print('No scans found')
         sys.exit(1)
 
     def add_image(survey, tiff, page):
@@ -195,14 +197,14 @@ def watch(cmdline):
         img.filename = os.path.relpath(os.path.abspath(tiff), survey.survey_dir)
         img.orig_name = tiff
         img.tiff_page = page
-        #print('Images added :'+str(img.filename)+str(img.orig_name)+str(img.tiff_page))
+        # print('Images added :'+str(img.filename)+str(img.orig_name)+str(img.tiff_page))
         imgdummy = model.sheet.Image()
         survey.sheet.add_image(imgdummy)
         imgdummy.orig_name = "DUMMY"
         imgdummy.filename = "DUMMY"
         imgdummy.tiff_page = -1
         imgdummy.ignored = True
-        #print('Images added :'+str(imgdummy.filename)+str(img.orig_name)+str(imgdummy.tiff_page))
+        # print('Images added :'+str(imgdummy.filename)+str(img.orig_name)+str(imgdummy.tiff_page))
 
     while images:
         # Simply drop the list of images again.
@@ -215,12 +217,12 @@ def watch(cmdline):
             print('Adding image duplex mode')
             add_image(survey, *images.pop(0))
 
-        #print(images)
+        # print(images)
 
-        print ('RECOGNIZE ')
+        print('RECOGNIZE ')
 
         sheet.recognize.recognize()
-    #
+        #
         for img in sheet.images:
             dictID = {}
             if img.tiff_page != -1:
@@ -229,20 +231,15 @@ def watch(cmdline):
                 print('\tRotated:', img.rotated)
                 print('\tMatrix (px to mm):', img.raw_matrix)
                 print('\tSurvey-ID:', sheet.survey_id)
-                tmpdictID = {'QID':sheet.questionnaire_id, 'SID':sheet.survey_id, 'BID':sheet.barcode_id, 'GID':sheet.global_id}
-                tempSID = sheet.survey_id
                 print('\tGlobal-ID:', sheet.global_id)
-                tempGID = sheet.global_id
-                print('\tBarcode-ID:', sheet.barcode_id)
-                tempBID = sheet.barcode_id
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
-                tempQID = sheet.questionnaire_id
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
-                tiffname = str(renamedFolder)+'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
-            
-            subprocess.call(['cp', img.orig_name, tiffname+".tif"])
-            #img.save(sheet.survey_id+'.tif')
+                tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(
+                    sheet.questionnaire_id) + 'SRVID' + str(sheet.survey_id)
+
+            subprocess.call(['cp', img.orig_name, tiffname + ".tif"])
+            # img.save(sheet.survey_id+'.tif')
     # processedList = []
     #
     # for tiffScan in tiffScans:
