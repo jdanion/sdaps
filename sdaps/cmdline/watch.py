@@ -98,6 +98,7 @@ def watch(cmdline):
 
     # creating project dictionnary
     surveyIdList = {}
+    surveyList = {}
 
     # list of all subfolders containing 'info'
     for file in Path(cmdline['projectsFolder']).walkfiles('info'):
@@ -114,6 +115,9 @@ def watch(cmdline):
     with open('surveyList.csv', 'w') as f:
         for key in surveyIdList.keys():
             f.write("%s,%s\n" % (key, surveyIdList[key]))
+            surveyList[key] = {'path': surveyIdList[key], 'survey': model.survey.Survey.load(surveyIdList[key]), 'sheet'\
+                               : model.sheet.Sheet()}
+            surveyList[key]['survey'].add_sheet(surveyList[key]['sheet'])
 
     # file retrieval
     print('Listing scanned files')
@@ -219,12 +223,11 @@ def watch(cmdline):
 
         # print(images)
 
-        print('RECOGNIZE ')
+        print('Adding image in the correct survey ')
 
         sheet.recognize.recognize()
-        #
+
         for img in sheet.images:
-            dictID = {}
             if img.tiff_page != -1:
                 print(img.orig_name, img.tiff_page)
                 print('\tPage:', img.page_number)
@@ -235,10 +238,17 @@ def watch(cmdline):
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
-                tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(
-                    sheet.questionnaire_id) + 'SRVID' + str(sheet.survey_id)
+                tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(sheet.questionnaire_id) + 'SRVID'\
+                           + str(sheet.survey_id)
+
+                add_image(surveyList[str(sheet.survey_id)]['survey'], img.orig_name, 1)
 
             subprocess.call(['cp', img.orig_name, tiffname + ".tif"])
+
+    for s in surveyList:
+        print('RECOGNIZE '+str(s))
+        surveyList[s]['sheet'].recognize.recognize()
+
             # img.save(sheet.survey_id+'.tif')
     # processedList = []
     #
