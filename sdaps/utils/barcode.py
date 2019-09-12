@@ -33,10 +33,14 @@ from sdaps import defs
 def read_barcode(surface, matrix, x, y, width, height, btype="CODE128"):
     """Tries to read the barcode at the given position"""
     result = scan(surface, matrix, x, y, width, height, btype)
-
+    
     if result == None:
       # Try kfill approach
-      result = scan(surface, matrix, x, y, width, height, "CODE39", True)
+      result = scan(surface, matrix, x, y, width, height, btype, True)
+
+    if result == None:
+      # Force CODE39
+      result = scan(surface, matrix, x, y, width, height, "CODE39")
 
     return result
 
