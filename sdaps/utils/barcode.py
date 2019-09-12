@@ -81,11 +81,15 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     f = open(tmp, 'wb')
     f.write(pbm)
     f.close()
-
+    print(tmp)
     # Is the /dev/stdin sufficiently portable?
-    proc = subprocess.Popen(['zbarimg', '-q', '-Sdisable', '-S%s.enable' % btype.lower(),
-    tmp], stdout=subprocess.PIPE)
+    subprocess.call(['cp', tmp, './'])
+    print('COPY'+tmp)
+    proc = subprocess.Popen(['zbarimg', '-q', tmp], stdout=subprocess.PIPE)
     stdout, stderr = proc.communicate()
+    print(stdout)
+    print(stderr)
+    print(proc.communicate())
     os.unlink(tmp)
 
     # The following can be used to look at the images
@@ -107,7 +111,7 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     assert(proc.returncode == 0)
     barcode = stdout.split(b'\n')[0]
     #assert barcode.split(b':', 1)[0].replace(b'-', b'').lower() == btype.lower().encode('ascii')
-
+    print(barcode)
     return barcode.split(b':', 1)[1].decode('utf-8')
 
 #b_count = 0
