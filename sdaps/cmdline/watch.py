@@ -239,8 +239,13 @@ def watch(cmdline):
                 now = datetime.datetime.now()
                 datestamp = now.strftime('%Y%m%d%H%M%S%f')
 <<<<<<< HEAD
+<<<<<<< HEAD
                 tiffname = renamedFolder+'/DATE_'+str(datestamp)+'QID_'+str(sheet.questionnaire_id)+'SRVID_'+str(sheet.survey_id)+'BID_'+str(sheet.barcode_id)
 
+=======
+                tiffname = str(renamedFolder)+'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
+            
+>>>>>>> parent of 620faa7... tiffnamm fix
             subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
 =======
