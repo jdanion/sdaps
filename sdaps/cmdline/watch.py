@@ -248,10 +248,10 @@ def watch(cmdline):
             subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
 
-                tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(sheet.questionnaire_id) + 'SRVID'\
+            tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(sheet.questionnaire_id) + 'SRVID'\
                            + str(sheet.survey_id)
 
-                add_image(surveyList[str(sheet.survey_id)]['survey'], img.orig_name, 1)
+            add_image(surveyList[str(sheet.survey_id)]['survey'], img.orig_name, 1)
 
             subprocess.call(['cp', img.orig_name, tiffname + ".tif"])
 
