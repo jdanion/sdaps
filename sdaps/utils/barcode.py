@@ -33,7 +33,7 @@ from sdaps import defs
 def read_barcode(surface, matrix, x, y, width, height, btype="CODE128"):
     """Tries to read the barcode at the given position"""
     result = scan(surface, matrix, x, y, width, height, btype)
-    
+
     if result == None:
       # Try kfill approach
       result = scan(surface, matrix, x, y, width, height, btype, True)
@@ -85,15 +85,17 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     f = open(tmp, 'wb')
     f.write(pbm)
     f.close()
+    print('TMP')
     print(tmp)
+    print('COPY')
     # Is the /dev/stdin sufficiently portable?
-    subprocess.call(['cp', tmp, './'])
-    print('COPY'+tmp)
+    #subprocess.call(['cp', tmp, './'])
+    print('COPY OK'+tmp)
     proc = subprocess.Popen(['zbarimg', '-q', tmp], stdout=subprocess.PIPE)
     stdout, stderr = proc.communicate()
-    print(stdout)
-    print(stderr)
-    print(proc.communicate())
+    # print(stdout)
+    # print(stderr)
+    # print(proc.communicate())
     os.unlink(tmp)
 
     # The following can be used to look at the images
@@ -108,7 +110,7 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     #global b_count
     #rgb_surface.write_to_png("/tmp/barcode-%03i.png" % b_count)
     #b_count += 1
-
+    print('ZBAR OK')
     if proc.returncode == 4:
         return None
 
