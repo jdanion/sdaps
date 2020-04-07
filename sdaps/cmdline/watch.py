@@ -16,23 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# from sdaps import model
 import os, subprocess, tempfile, shutil, sys
 from sdaps import convert
 from sdaps import script
-# from sdaps import defs
 from sdaps import recognize
 from sdaps import model
 from sdaps import image
 from sdaps.utils import opencv
-# from sdaps.recognize import buddies
 from path import Path
 from PIL import Image
 from PIL import TiffImagePlugin
 
-# from pyzbar  import pyzbar
 import argparse
-# import cv2
 import datetime
 import csv
 
