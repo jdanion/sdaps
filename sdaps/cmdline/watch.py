@@ -16,11 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# from sdaps import model
 import os, subprocess, tempfile, shutil, sys
 from sdaps import convert
 from sdaps import script
-# from sdaps import defs
 from sdaps import recognize
 from sdaps import model
 from sdaps import image
@@ -28,38 +26,16 @@ from sdaps.utils import opencv
 import cv2
 # from sdaps.recognize import buddies
 from path import Path
+from PIL import Image
+from PIL import TiffImagePlugin
 
-# from pyzbar  import pyzbar
 import argparse
-# import cv2
 import datetime
 import csv
 
 from sdaps.utils.ugettext import ugettext, ungettext
 
 _ = ugettext
-
-# def barcodeDetect(image):
-#
-#     # load the input image
-#     imageload = cv2.imread(image)
-#
-#     # find the barcodes in the image and decode each of the barcodes
-#     barcodes = pyzbar.decode(imageLoad)
-#
-#     facturation = 'None'
-#     project = 'None'
-#     # loop over the detected barcodes
-#     for barcode in barcodes:
-#         barcodedata = barcode.data.decode("utf-8")
-#         if len(barcodedata) == 9:
-#             facturation = barcodedata
-#             print(facturation)
-#         elif len(barcodedata) == 14:
-#             project = barcodedata[0:-4]
-#             print(project)
-#     print(project , facturation)
-#     return (project , facturation)
 
 parser = script.add_project_subparser("watch",
                                       help=_("Watching for new scan commit"),
@@ -78,60 +54,8 @@ parser.add_argument('--renamedFolder', '-rf',
 
 @script.connect(parser)
 def watch(cmdline):
-    # We need a survey that has the correct definitions (paper size, duplex mode)
-    # Assume the first argument is a survey
-    if os.path.exists('./WATCH/info'):
-        print('WATCH project found, processing')
-        pass
-    else:
-        print('Creating new WATCH project')
-        subprocess.call(['sdaps', 'setup', 'WATCH', './watch.tex'])
-    watchtexpath = (os.path.dirname(os.path.abspath(__file__)))
-    # loading dummy survey
-    print('Loading WATCH project')
-    survey = model.survey.Survey.load('WATCH')
 
-    # A sheet object to attach the images to
-    sheet = model.sheet.Sheet()
-    survey.add_sheet(sheet)
-
-    print('Listing all projects in ProjectsFolder')
-
-    # creating project dictionnary
-    surveyIdList = {}
-    surveyList = {}
-
-    # list of all subfolders containing 'info'
-    for file in Path(cmdline['projectsFolder']).walkfiles('info'):
-        s = file.dirname()
-        with open(s + '/info', "r") as infoFile:
-            # looking for survey id and add it to the dictionnary
-            lines = infoFile.read()
-            line = lines.split('\n')
-            for l in line:
-                words = l.split(' = ')
-                if words[0] == 'survey_id':
-                    print('DETECT ! : ' + words[1])
-                    surveyIdList[words[1]] = s
-    with open('surveyList.csv', 'w') as f:
-        for key in surveyIdList.keys():
-            f.write("%s,%s\n" % (key, surveyIdList[key]))
-            surveyList[key] = {'path': surveyIdList[key], 'survey': model.survey.Survey.load(surveyIdList[key]), 'sheet'\
-                               : model.sheet.Sheet()}
-            surveyList[key]['survey'].add_sheet(surveyList[key]['sheet'])
-
-    # file retrieval
-    print('Listing scanned files')
-    scans = os.listdir(cmdline['scanFolder'])
-
-    print(scans)
-
-    # temp folder creation
-    tempd = tempfile.mkdtemp()
-    print('Temp folder :' + tempd)
-
-    # folder with alreay processed scans
-    renamedFolder = cmdline['renamedFolder']
+    global tiffname
 
     def is_tiff(scanned):
         scan_title, scan_extension = os.path.splitext(scanned)
@@ -146,6 +70,63 @@ def watch(cmdline):
             return True
         else:
             return False
+
+    # temp folder creation
+    tempd = tempfile.mkdtemp()
+    print('Temp folder :' + tempd)
+
+    if os.path.exists('./WATCH/info'):
+        print('WATCH project found, processing')
+        pass
+    else:
+        print('Creating new WATCH project')
+        subprocess.call(['sdaps', 'setup', 'WATCH', './watch.tex'])
+    watchtexpath = (os.path.dirname(os.path.abspath(__file__)))
+
+    # loading dummy survey
+    print('Loading WATCH project')
+    survey = model.survey.Survey.load('WATCH')
+
+    # A sheet object to attach the images to
+    sheet = model.sheet.Sheet()
+    survey.add_sheet(sheet)
+
+    print('Listing all projects in ProjectsFolder')
+
+    # creating project dictionnary
+    surveyIdList = {}
+
+    # folder with already processed scans
+    renamedFolder = cmdline['renamedFolder']
+    surveysRenamedFolder = os.listdir(renamedFolder)
+
+    print(surveysRenamedFolder)
+
+    # list of all subfolders containing 'info'
+    for file in Path(cmdline['projectsFolder']).walkfiles('info'):
+        s = file.dirname()
+        with open(s + '/info', "r") as infoFile:
+            # looking for survey id and add it to the dictionary
+            lines = infoFile.read()
+            line = lines.split('\n')
+            for l in line:
+                words = l.split(' = ')
+                if words[0] == 'survey_id':
+                    print('DETECT : ' + words[1])
+                    surveyIdList[words[1]] = s
+    with open('surveyList.csv', 'w') as f:
+        for key in surveyIdList.keys():
+            f.write("%s,%s\n" % (key, surveyIdList[key]))
+            subprocess.call(['mkdir', tempd + '/' + key])
+            if key not in surveysRenamedFolder:
+                subprocess.call(['mkdir', cmdline['renamedFolder'] + '/' + key])
+            else:
+                print('Folder ' + key + ' already exist')
+
+
+    # file retrieval
+    print('Listing scanned files')
+    scans = os.listdir(cmdline['scanFolder'])
 
     # convert and copy
     for scan in scans:
@@ -167,7 +148,6 @@ def watch(cmdline):
             #scantoconvert = []
             #scantoconvert.append(tempscanpdf)
             convert.convert_images([tempscanpdf], tempscantif, survey.defs.paper_width, survey.defs.paper_height)
-            # subprocess.call(['pdfimages', '-tiff', cmdline['scanFolder']+'/'+scan, tempd+'/'+scan_title])
         elif is_tiff(scan):
             print('TIFF file found')
             tempscantif = tempfile.mktemp(suffix='.tif', dir=tempd)
@@ -184,10 +164,16 @@ def watch(cmdline):
         num_pages = image.get_tiff_page_count(tempd + '/' + file)
         print('Number of pages  for '+str(tempd) + '/' + str(file)+' : '+str(num_pages))
         # Create one tif file for every pages and add it into images dict
-        subprocess.call(['convert', tempd + '/' + file, tempd + '/%d' + file])
+        #subprocess.call(['convert', tempd + '/' + file, tempd + '/%d' + file])
+        tifs = Image.open(tempd + '/' + file)
         for page in range(num_pages):
             print(tempd + '/' + str(page) + file)
             # Reconvert each tif to the survey format
+            try:
+                tifs.seek(page)
+                tifs.save(tempd + '/' + str(page) + file)
+            except EOFError:
+                break
             convert.convert_images([tempd + '/' + str(page) + file], tempd + '/' + str(page) + file, survey.defs.paper_width, survey.defs.paper_height)
             images.append((tempd + '/' + str(page) + file, 1))
 
