@@ -23,7 +23,6 @@ from sdaps import recognize
 from sdaps import model
 from sdaps import image
 from sdaps.utils import opencv
-import cv2
 # from sdaps.recognize import buddies
 from path import Path
 from PIL import Image
@@ -139,7 +138,7 @@ def watch(cmdline):
             tempscantif = tempfile.mktemp(suffix='.tif', dir=tempd)
             print('File', str(cmdline['scanFolder'] + '/' + scan), 'found, trying to convert to ' + tempscantif)
             subprocess.call(['cp', cmdline['scanFolder'] + '/' + scan, tempscanpdf])
-            print('Copied ' + str(cmdline['scanFolder'] + '/' + scan) + ' to ' + tempscanpdf)
+            print('Copied' + str(cmdline['scanFolder'] + '/' + scan) + ' to ' + tempscanpdf)
             # subprocess.call(['sdaps', 'add', "WATCH", tempscanpdf, '--convert'])
             # for i, (img, filename, page) in enumerate(opencv.iter_images_and_pages(tempscanpdf)):
             #     print(img)
@@ -162,7 +161,6 @@ def watch(cmdline):
 
     for file in tiffscans:
         num_pages = image.get_tiff_page_count(tempd + '/' + file)
-        print('Number of pages  for '+str(tempd) + '/' + str(file)+' : '+str(num_pages))
         # Create one tif file for every pages and add it into images dict
         #subprocess.call(['convert', tempd + '/' + file, tempd + '/%d' + file])
         tifs = Image.open(tempd + '/' + file)
@@ -211,36 +209,12 @@ def watch(cmdline):
 
         # print(images)
 
-        #print('Adding image in the correct survey ')
-        print('RECOGNIZE')
+        print('Adding image in the correct survey ')
+
         sheet.recognize.recognize()
+
         for img in sheet.images:
             if img.tiff_page != -1:
-                print('Image recognized')
-                print(img)
-                print(image.get_tiff_page_count(img.orig_name))
-                print(img.orig_name, img.tiff_page)
-                print('\tPage:', img.page_number)
-                print('\tRotated:', img.rotated)
-                print('\tMatrix (px to mm):', img.raw_matrix)
-                print('\tBarcode ID : ', img.barcode_id)
-                print('\tSurvey-ID:', img.survey_id)
-                print('\tGlobal-ID:', img.global_id)
-                print('\tQuestionnaire-ID:', sheet.questionnaire_id)
-                now = datetime.datetime.now()
-                datestamp = now.strftime('%Y%m%d%H%M%S%f')
-                tiffname = str(renamedFolder)+'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
-                #print(tiffname+".tif")
-                #extractimage = image.get_rgb24_from_tiff(img.orig_name, 1, False)
-                #print(extractimage)
-                #deftiffpage = opencv.to_opencv(extractimage)
-                #cv2.imshow(deftiffpage)
-                #print(deftiffpage)
-                #opencv.save(deftiffpage, tiffname)
-                #cv2.imwrite(deftiffpage, tiffname)
-                subprocess.call(['cp', img.orig_name, tiffname+".tif"])
-            else:
-                print('IGNORED')
                 print(img.orig_name, img.tiff_page)
                 print('\tPage:', img.page_number)
                 print('\tRotated:', img.rotated)
@@ -248,24 +222,31 @@ def watch(cmdline):
                 print('\tSurvey-ID:', sheet.survey_id)
                 print('\tGlobal-ID:', sheet.global_id)
                 print('\tQuestionnaire-ID:', sheet.questionnaire_id)
-                #tiffname = renamedFolder+'/DATE_'+str(datestamp)+'QID_'+str(sheet.questionnaire_id)+'SRVID_'+str(sheet.survey_id)+'BID_'+str(sheet.barcode_id)
-            #while
+                now = datetime.datetime.now()
+                datestamp = now.strftime('%Y%m%d%H%M%S%f')
 
+                tiffname = renamedFolder+'/DATE_'+str(datestamp)+'QID_'+str(sheet.questionnaire_id)+'SRVID_'+str(sheet.survey_id)+'BID_'+str(sheet.barcode_id)
+
+
+                tiffname = str(renamedFolder)+'DATE'+str(datestamp)+'QID'+str(sheet.questionnaire_id)+'SRVID'+str(sheet.survey_id)+'BID'+str(sheet.barcode_id)
+            
+
+            subprocess.call(['cp', img.orig_name, tiffname+".tif"])
             #img.save(sheet.survey_id+'.tif')
 
-            #tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(sheet.questionnaire_id) + 'SRVID'\
-    #                        + str(sheet.survey_id)
-    #
-    #         add_image(surveyList[str(sheet.survey_id)]['survey'], img.orig_name, 1)
-    #
-    #         subprocess.call(['cp', img.orig_name, tiffname + ".tif"])
-    #
-    # for s in surveyList:
-    #     print('RECOGNIZE '+str(s))
-    #     surveyList[s]['sheet'].recognize.recognize()
+            tiffname = str(renamedFolder) + '/DATE' + str(datestamp) + 'QID' + str(sheet.questionnaire_id) + 'SRVID'\
+                           + str(sheet.survey_id)
+
+            add_image(surveyList[str(sheet.survey_id)]['survey'], img.orig_name, 1)
+
+            subprocess.call(['cp', img.orig_name, tiffname + ".tif"])
+
+    for s in surveyList:
+        print('RECOGNIZE '+str(s))
+        surveyList[s]['sheet'].recognize.recognize()
 
             # img.save(sheet.survey_id+'.tif')
-
+          
     # processedList = []
     #
     # for tiffScan in tiffScans:
