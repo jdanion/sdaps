@@ -52,8 +52,7 @@ def add_subparser(*args, **kwargs):
     return parser
 
 def add_project_argument(parser):
-    if 'watch' not in sys.argv[1]:
-        parser.add_argument('project', type=str, help=_("project directory|The SDAPS project."))
+    parser.add_argument('project', type=str, help=_("project directory|The SDAPS project."))
 
 def add_project_subparser(*args, **kwargs):
     parser = add_subparser(*args, **kwargs)
