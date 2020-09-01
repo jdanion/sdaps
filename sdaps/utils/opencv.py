@@ -51,23 +51,17 @@ def iter_images_and_pages(images):
             # Check whether this is a TIFF file (ie. try to retrieve the page count)
             pages = image.get_tiff_page_count(filename)
             is_tiff = True
-            print ('IS TIFF')
         except AssertionError:
             pass
 
         if not is_tiff:
-            print ('NOT TIFF')
             try:
                 gfile = Gio.File.new_for_path(filename)
-                print('GFILE OK')
                 pdf_doc = Poppler.Document.new_from_gfile(gfile, None, None)
-                print('POPPLER OK')
                 pages = pdf_doc.get_n_pages()
                 is_pdf = True
-                print('IS PDF')
             except:
                 # Either not PDF/damaged or poppler not installed properly
-                print ('NO POPPLER')
                 pass
 
 
